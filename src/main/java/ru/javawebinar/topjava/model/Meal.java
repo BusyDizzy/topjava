@@ -3,24 +3,22 @@ package ru.javawebinar.topjava.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class Meal {
-
     private Integer id;
     private LocalDateTime dateTime;
-
     private String description;
-
     private int calories;
 
-    public Meal(Integer id, LocalDateTime dateTime, String description, int calories) {
-        this.id = id;
+    public Meal() {
+    }
+
+    public Meal(LocalDateTime dateTime, String description, int calories) {
+
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
-    }
-
-    public Meal() {
     }
 
     public Integer getId() {
@@ -71,5 +69,18 @@ public class Meal {
                 ", description='" + description + '\'' +
                 ", calories=" + calories +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Meal meal = (Meal) o;
+        return calories == meal.calories && Objects.equals(dateTime, meal.dateTime) && Objects.equals(description, meal.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dateTime, description, calories);
     }
 }

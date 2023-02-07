@@ -5,28 +5,24 @@
          version="4.0">
 
     <display-name>TopJava</display-name>
-
     <servlet>
-        <servlet-name>mealServlet</servlet-name>
+        <display-name>MealServlet</display-name>
+        <servlet-name>MealServlet</servlet-name>
         <servlet-class>ru.javawebinar.topjava.web.MealServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
+<!--        <load-on-startup>0</load-on-startup>-->
     </servlet>
     <servlet-mapping>
-        <servlet-name>mealServlet</servlet-name>
+        <servlet-name>MealServlet</servlet-name>
         <url-pattern>/meals</url-pattern>
     </servlet-mapping>
 
     <servlet>
         <servlet-name>userServlet</servlet-name>
         <servlet-class>ru.javawebinar.topjava.web.UserServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
+<!--        <load-on-startup>0</load-on-startup>-->
     </servlet>
     <servlet-mapping>
         <servlet-name>userServlet</servlet-name>
         <url-pattern>/users</url-pattern>
     </servlet-mapping>
-
-<!--    <welcome-file-list>-->
-<!--        <welcome-file>start.jsp</welcome-file>-->
-<!--    </welcome-file-list>-->
 </web-app>
