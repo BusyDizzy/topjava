@@ -13,7 +13,7 @@
 <h3><a href="index.html">Home</a></h3>
 <hr/>
 
-<h2><c:out value="${not empty meal.description ? 'Edit meal' : 'Add meal'}"/></h2>
+<h2><c:out value="${not empty meal.id ? 'Edit meal' : 'Add meal'}"/></h2>
 <form method="POST" action='meals' name="frmAddMeal">
 
     <input type="hidden" name="mealId"
@@ -23,7 +23,7 @@
         type="text" name="description"
         value="${meal.description}"/> <br/>
     DateTime : <input
-        type="datetime" name="dateTime"
+        type="datetime-local" name="dateTime"
         <fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="date"/>
         <fmt:formatDate value="${parsedDate}" var="formattedDate" type="both" pattern="yyyy-MM-dd HH:mm"/>
         value="${not empty formattedDate ? formattedDate : LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}"/>
@@ -35,16 +35,5 @@
     <input type="submit" value="Save"/>
     <button onclick="window.history.back()" type="button">Cancel</button>
 </form>
-<%
-    if("POST".equalsIgnoreCase(request.getMethod())){
-        session.setAttribute("mealId", request.getParameter("mealId"));
-        session.setAttribute("dateTime", request.getParameter("dateTime"));
-        session.setAttribute("calories", request.getParameter("calories"));
-        response.sendRedirect("/topjava/meals");
-    }
-    else {
-        // Do nothing!
-    }
-%>
 </body>
 </html>

@@ -45,11 +45,6 @@
         </tr>
     </c:forEach>
     </tbody>
-    <%
-        if("POST".equalsIgnoreCase(request.getMethod())){
-            response.sendRedirect("/topjava/meals");
-        }
-    %>
 </table>
 </body>
 </html>

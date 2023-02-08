@@ -3,39 +3,34 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
-import ru.javawebinar.topjava.model.User;
-import ru.javawebinar.topjava.repository.MemoryBasedMealsRepositoryImpl;
+import ru.javawebinar.topjava.repository.MealsRepository;
+import ru.javawebinar.topjava.repository.MemoryBasedMealsRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-
 public class MealServlet extends HttpServlet {
-
+    public static final int CALORIES_PER_DAY = 2000;
     private static final String INSERT_OR_EDIT = "/addMeal.jsp";
     private static final String LIST_MEAL = "/meals.jsp";
     private static final Logger log = getLogger(MealServlet.class);
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private MemoryBasedMealsRepositoryImpl memoryBasedMealsRepositoryImpl;
-
-    public MealServlet() {
-    }
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private MealsRepository mealService;
 
     @Override
-    public void init() throws ServletException {
-        super.init();
-        memoryBasedMealsRepositoryImpl = new MemoryBasedMealsRepositoryImpl();
+    public void init() {
+        mealService = new MemoryBasedMealsRepository();
     }
 
     @Override
@@ -49,35 +44,37 @@ public class MealServlet extends HttpServlet {
         }
 
         switch (action) {
-            case "delete":
+            case "delete": {
                 log.debug("Starting Delete action");
                 int mealId = Integer.parseInt(request.getParameter("mealId"));
-                if (memoryBasedMealsRepositoryImpl.removeById(mealId)) {
+                if (mealService.removeById(mealId)) {
                     log.info("Meal with id {} was removed", mealId);
                 }
-                Set<MealTo> mealToList = new ConcurrentSkipListSet<>(MealsUtil.filteredByStreams(memoryBasedMealsRepositoryImpl.getAll(),
-                        null, null, User.CALORIES_PER_DAY));
-                request.setAttribute("meals", mealToList);
-                response.sendRedirect("/topjava/meals");
+                response.sendRedirect(request.getRequestURI());
                 return;
-            case "edit":
+            }
+            case "edit": {
                 log.info("Starting Edit action");
                 forward = INSERT_OR_EDIT;
-                mealId = Integer.parseInt(request.getParameter("mealId"));
-                Meal meal = memoryBasedMealsRepositoryImpl.getById(mealId);
+                int mealId = Integer.parseInt(request.getParameter("mealId"));
+                Meal meal = mealService.getById(mealId);
                 request.setAttribute("meal", meal);
                 break;
-            case "insert":
+            }
+            case "insert": {
                 forward = INSERT_OR_EDIT;
                 break;
-            default:
+            }
+            default: {
                 log.debug("Starting show all meals action");
                 forward = LIST_MEAL;
-                mealToList = new ConcurrentSkipListSet<>(MealsUtil.filteredByStreams(memoryBasedMealsRepositoryImpl.getAll(),
-                        null, null, User.CALORIES_PER_DAY));
+                List<MealTo> mealToList = new ArrayList<>(MealsUtil.filteredByStreams(mealService.getAll(),
+                        null, null, CALORIES_PER_DAY));
                 log.info("Meal to MealTo executed");
+                Collections.sort(mealToList);
                 request.setAttribute("meals", mealToList);
                 break;
+            }
         }
 
         RequestDispatcher view = request.getRequestDispatcher(forward);
@@ -95,18 +92,14 @@ public class MealServlet extends HttpServlet {
 
         String mealId = request.getParameter("mealId");
         if (mealId == null || mealId.isEmpty()) {
-            memoryBasedMealsRepositoryImpl.addMeal(meal);
+            mealService.add(meal);
             log.info("Object: {} was added ", meal);
         } else {
             meal.setId(Integer.parseInt(mealId));
-            memoryBasedMealsRepositoryImpl.update(meal);
+            mealService.update(meal);
             log.info("Object {} was updated", meal);
         }
-        RequestDispatcher view = request.getRequestDispatcher(LIST_MEAL);
-        Set<MealTo> mealToList = new ConcurrentSkipListSet(MealsUtil.filteredByStreams(memoryBasedMealsRepositoryImpl.getAll(),
-                null, null, User.CALORIES_PER_DAY));
-        request.setAttribute("meals", mealToList);
-        view.forward(request, response);
+        response.sendRedirect(request.getRequestURI());
         log.info("Exit doPOST");
     }
 }
