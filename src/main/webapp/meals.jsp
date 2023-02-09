@@ -22,7 +22,7 @@
 <h3><a href="index.html">Home</a></h3>
 <hr/>
 <h2>Meals</h2>
-<p><a href="javascript:void(0)" onclick="location.href='/topjava/meals?action=insert'">Add Meal</a></p>
+<p><a href="javascript:void(0)" onclick="location.href='meals?action=create'">Add Meal</a></p>
 <table border=1>
     <thead>
     <tr>
@@ -34,14 +34,15 @@
     </thead>
     <tbody>
     <c:forEach items="${meals}" var="meal">
+        <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.model.MealTo"/>
         <tr class="${meal.isExcess() ? 'red' : 'green'}">
             <fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="date"/>
             <fmt:formatDate value="${parsedDate}" var="formattedDate" type="both" pattern="yyyy-MM-dd HH:mm" />
             <td>${formattedDate}</td>
             <td>${meal.description}</td>
             <td>${meal.calories}</td>
-            <td><a href="javascript:void(0)" onclick="location.href='/topjava/meals?action=edit&mealId=<c:out value="${meal.id}'"/>">Update</a></td>
-            <td><a href="javascript:void(0)" onclick="location.href='/topjava/meals?action=delete&mealId=<c:out value="${meal.id}'"/>">Delete</a></td>
+            <td><a href="javascript:void(0)" onclick="location.href='meals?action=create&mealId=${meal.id}'">Update</a></td>
+            <td><a href="javascript:void(0)" onclick="location.href='meals?action=delete&mealId=${meal.id}'">Delete</a></td>
         </tr>
     </c:forEach>
     </tbody>

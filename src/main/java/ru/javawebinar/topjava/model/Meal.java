@@ -10,7 +10,16 @@ public class Meal {
     private LocalDateTime dateTime;
     private String description;
     private int calories;
+
     public Meal(LocalDateTime dateTime, String description, int calories) {
+        this.id = null;
+        this.dateTime = dateTime;
+        this.description = description;
+        this.calories = calories;
+    }
+
+    public Meal(Integer id, LocalDateTime dateTime, String description, int calories) {
+        this.id = id;
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
@@ -66,16 +75,8 @@ public class Meal {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Meal meal = (Meal) o;
-        return calories == meal.calories && Objects.equals(id, meal.id) && Objects.equals(dateTime, meal.dateTime) && Objects.equals(description, meal.description);
+    public boolean isNew() {
+        return id == null;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, dateTime, description, calories);
-    }
 }

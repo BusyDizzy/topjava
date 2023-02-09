@@ -40,27 +40,15 @@ public class MemoryBasedMealsRepository implements MealsRepository {
 
     @Override
     public boolean removeById(int id) {
-        Meal meal = getById(id);
-        if (meal != null) {
-            meals.remove(meal.getId());
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Meal update(Meal newMeal) {
-        Meal oldMeal = getById(newMeal.getId());
-        if (oldMeal != null) {
-            meals.put(newMeal.getId(), newMeal);
-        }
-        return newMeal;
+        return meals.remove(id) != null;
     }
 
     @Override
     public Meal add(Meal meal) {
-        meal.setId(mealId.getAndIncrement());
-        meals.put(meal.getId(), meal);
-        return meal;
+        if (meal.isNew()) {
+            meal.setId(mealId.getAndIncrement());
+        }
+        return meals.put(meal.getId(), meal);
     }
+
 }
