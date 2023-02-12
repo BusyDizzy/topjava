@@ -1,11 +1,13 @@
 package ru.javawebinar.topjava.model;
 
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
 import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 
+@Component
 public class User extends AbstractNamedEntity {
 
     private String email;
