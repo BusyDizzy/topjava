@@ -23,29 +23,27 @@
     <h2>Meals</h2>
 
     <form action="meals" id="filter">
-
         <div class="row">
             <div class="col-2">
                 <label for="startDate">От даты (включая)</label>
-                <input autocomplete="off" id="startDate" name="startDate" type="date">
+                <input id="startDate" name="startDate" type="date" autocomplete="off" value="${startDate}">
             </div>
 
             <div class="col-2">
                 <label for="endDate">До даты (включая)</label>
-                <input type="date" name="endDate" id="endDate" autocomplete="off">
+                <input type="date" name="endDate" id="endDate" autocomplete="off" value="${endDate}">
             </div>
 
             <div class="offset-2 col-3">
                 <label for="startTime">От времени (включая)</label>
-                <input type="time" name="startTime" id="startTime" autocomplete="off">
+                <input type="time" name="startTime" id="startTime" autocomplete="off" value="${startTime}">
             </div>
             <div class="offset-2 col-3">
                 <label for="endTime">До времени (включая)</label>
-                <input type="time" name="endTime" id="endTime" autocomplete="off">
+                <input type="time" name="endTime" id="endTime" autocomplete="off" value="${endTime}">
             </div>
 
         </div>
-
         <button type="submit">Filter</button>
 
     </form>

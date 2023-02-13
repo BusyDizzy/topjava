@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import ru.javawebinar.topjava.model.AbstractNamedEntity;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -19,13 +18,11 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Integer, User> repository = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
 
-    public static final List<User> users = Arrays.asList(
-            new User(null, "user", "user@email.com", "password", Role.USER),
-            new User(null, "admin", "admin@email.com", "password", Role.ADMIN)
-    );
-
     {
-        users.forEach(this::save);
+        Arrays.asList(
+                new User(null, "user", "user@email.com", "password", Role.USER),
+                new User(null, "admin", "admin@email.com", "password", Role.ADMIN)
+        ).forEach(this::save);
     }
 
     @Override
@@ -55,14 +52,23 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         log.info("getAll");
-        List<User> users = (List<User>) repository.values();
-        users.sort(Comparator.comparing(AbstractNamedEntity::getName));
+        List<User> users = new ArrayList<>(repository.values());
+        users.sort(Comparator.comparing(User::getName)
+                .thenComparing(User::getEmail, (e1, e2) -> {
+                            if (Objects.hash(e1) > Objects.hash(e2)) {
+                                return -1;
+                            }
+                            if (Objects.hash(e1) < Objects.hash(e2)) {
+                                return 1;
+                            } else return 0;
+                        }
+                ));
         return users;
     }
 
     @Override
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
-        return repository.values().stream().filter(user -> user.getEmail().equals(email)).findAny().orElse(null);
+        return repository.values().stream().filter(user -> user.getEmail().equals(email.toLowerCase())).findAny().orElse(null);
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
@@ -20,7 +21,7 @@ public class MealService {
     }
 
     public Meal create(Meal meal, int userId) {
-        return repository.save(meal, userId);
+        return repository.save(meal);
     }
 
     public void delete(int id, int userId) {
@@ -34,10 +35,10 @@ public class MealService {
 
 
     public List<Meal> getAll(int userId) {
-        return (List<Meal>) repository.getAll(userId);
+        return new ArrayList<>(repository.getAll(userId));
     }
 
     public void update(Meal meal, int id, int userId) {
-        checkNotFoundWithId(repository.save(meal, userId), id);
+        checkNotFoundWithId(repository.save(meal), id);
     }
 }

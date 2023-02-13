@@ -6,9 +6,7 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -19,28 +17,19 @@ public class InMemoryMealRepository implements MealRepository {
     private final Map<Integer, Meal> mealRepository = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
 
-    // Init of meals for 2 users with 1 and 2 Ids
     {
-        for (int i = 0; i < 10; i++) {
-            if (i < 7) {
-                save(MealsUtil.meals.get(i), 1);
-            } else
-                save(MealsUtil.meals.get(i), 2);
-        }
+        MealsUtil.meals.forEach(this::save);
     }
 
     @Override
-    public Meal save(Meal meal, int userId) {
-        if (Objects.equals(userId, meal.getUserId())) {
-            if (meal.isNew()) {
-                meal.setId(counter.incrementAndGet());
-                mealRepository.put(meal.getId(), meal);
-                return meal;
-            }
-            // handle case: update, but not present in storage
-            return mealRepository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+    public Meal save(Meal meal) {
+        if (meal.isNew()) {
+            meal.setId(counter.incrementAndGet());
+            mealRepository.put(meal.getId(), meal);
+            return meal;
         }
-        return null;
+        // handle case: update, but not present in storage
+        return mealRepository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
     }
 
     @Override
@@ -50,15 +39,25 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        return mealRepository.get(id).getUserId() == userId ? mealRepository.get(id) : null;
+        Meal currentMeal = mealRepository.get(id);
+        return currentMeal.getUserId() == userId ? currentMeal : null;
     }
 
     @Override
-    public Collection<Meal> getAll(int userId) {
+    public List<Meal> getAll(int userId) {
         return mealRepository.values()
                 .stream()
                 .filter(meal -> meal.getUserId() == userId)
-                .sorted()
+                .sorted(Comparator.comparing(
+                        Meal::getDate, (m1, m2) -> {
+                            if (m1.isBefore(m2)) {
+                                return -1;
+                            }
+                            if (m1.isAfter(m2)) {
+                                return 1;
+                            } else return 0;
+                        }
+                ))
                 .collect(Collectors.toList());
     }
 }
