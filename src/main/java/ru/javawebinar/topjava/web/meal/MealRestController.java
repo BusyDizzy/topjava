@@ -24,28 +24,14 @@ public class MealRestController {
     @Autowired
     private MealService service;
 
-
     public List<MealTo> getAll() {
         log.info("getAll");
-        return MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY);
+        return MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAllFiltered(String startD, String endD, String startT, String endT) {
-
-        LocalDate startDate = startD.isEmpty() ?
-                LocalDate.MIN : LocalDate.parse(startD);
-
-        LocalDate endDate = endD.isEmpty() ?
-                LocalDate.MAX : LocalDate.parse(endD);
-
-        LocalTime startTime = startT.isEmpty() ?
-                LocalTime.MIN : LocalTime.parse(startT);
-
-        LocalTime endTime = endT.isEmpty() ?
-                LocalTime.MAX : LocalTime.parse(endT);
-
+    public List<MealTo> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
         log.info("getAllFiltered");
-        return MealsUtil.getFilteredTos(service.getAll(SecurityUtil.authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY, startDate, endDate, startTime, endTime);
+        return MealsUtil.getTos(service.getAllFiltered(SecurityUtil.authUserId(), startDate, endDate, startTime, endTime), SecurityUtil.authUserCaloriesPerDay());
     }
 
     public Meal get(int id) {
@@ -65,10 +51,8 @@ public class MealRestController {
     }
 
     public void update(Meal meal, int id) {
-        if (service.get(id, SecurityUtil.authUserId()) != null) {
-            log.info("update {} with id={}", meal, id);
-            assureIdConsistent(meal, id);
-            service.update(meal, id, SecurityUtil.authUserId());
-        }
+        log.info("update {} with id={}", meal, id);
+        assureIdConsistent(meal, id);
+        service.update(meal, SecurityUtil.authUserId());
     }
 }

@@ -26,21 +26,25 @@
         <div class="row">
             <div class="col-2">
                 <label for="startDate">От даты (включая)</label>
-                <input id="startDate" name="startDate" type="date" autocomplete="off" value="${startDate}">
+                <input id="startDate" name="startDate" type="date" autocomplete="off"
+                       value="<c:out value="${param['startDate']}"/>">
             </div>
 
             <div class="col-2">
                 <label for="endDate">До даты (включая)</label>
-                <input type="date" name="endDate" id="endDate" autocomplete="off" value="${endDate}">
+                <input type="date" name="endDate" id="endDate" autocomplete="off"
+                       value="<c:out value="${param['endDate']}"/>">
             </div>
 
             <div class="offset-2 col-3">
                 <label for="startTime">От времени (включая)</label>
-                <input type="time" name="startTime" id="startTime" autocomplete="off" value="${startTime}">
+                <input type="time" name="startTime" id="startTime" autocomplete="off"
+                       value="<c:out value="${param['startTime']}"/>">
             </div>
             <div class="offset-2 col-3">
                 <label for="endTime">До времени (включая)</label>
-                <input type="time" name="endTime" id="endTime" autocomplete="off" value="${endTime}">
+                <input type="time" name="endTime" id="endTime" autocomplete="off"
+                       value="<c:out value="${param['endTime']}"/>">
             </div>
 
         </div>

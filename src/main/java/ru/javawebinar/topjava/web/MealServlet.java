@@ -5,17 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.Role;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.meal.MealRestController;
-import ru.javawebinar.topjava.web.user.AdminRestController;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -27,10 +26,7 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init() {
         appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
-        AdminRestController adminUserController = appCtx.getBean(AdminRestController.class);
-        adminUserController.create(new User(null, "userName", "email@mail.ru", "password", Role.ADMIN));
         mealRestController = appCtx.getBean(MealRestController.class);
-
     }
 
     @Override
@@ -43,21 +39,16 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
 
-        Meal meal;
+        Meal meal = new Meal(null,
+                LocalDateTime.parse(request.getParameter("dateTime")),
+                request.getParameter("description"),
+                Integer.parseInt(request.getParameter("calories")),
+                null);
         if (id.isEmpty()) {
-            meal = new Meal(null,
-                    LocalDateTime.parse(request.getParameter("dateTime")),
-                    request.getParameter("description"),
-                    Integer.parseInt(request.getParameter("calories")),
-                    SecurityUtil.authUserId());
             log.info("Create {}", meal);
             mealRestController.create(meal);
         } else {
-            meal = new Meal(Integer.valueOf(id),
-                    LocalDateTime.parse(request.getParameter("dateTime")),
-                    request.getParameter("description"),
-                    Integer.parseInt(request.getParameter("calories")),
-                    SecurityUtil.authUserId());
+            meal.setId(Integer.parseInt(id));
             log.info("Update {}", meal);
             mealRestController.update(meal, meal.getId());
         }
@@ -88,16 +79,18 @@ public class MealServlet extends HttpServlet {
                 log.info("getAll");
 
                 if (request.getParameterNames().hasMoreElements()) {
+                    LocalDate startDate = request.getParameter("startDate").isEmpty() ?
+                            LocalDate.MIN : LocalDate.parse(request.getParameter("startDate"));
+                    LocalDate endDate = request.getParameter("endDate").isEmpty() ?
+                            LocalDate.MAX : LocalDate.parse(request.getParameter("endDate"));
+                    LocalTime startTime = request.getParameter("startTime").isEmpty() ?
+                            LocalTime.MIN : LocalTime.parse(request.getParameter("startTime"));
+                    LocalTime endTime = request.getParameter("endTime").isEmpty() ?
+                            LocalTime.MAX : LocalTime.parse(request.getParameter("endTime"));
+                    // Я не могу передавать данные без проверки, потому что если значение null,
+                    // во время парсинга даты/времени возникает Exception
                     request.setAttribute("meals",
-                            mealRestController.getAllFiltered(
-                                    request.getParameter("startDate"),
-                                    request.getParameter("endDate"),
-                                    request.getParameter("startTime"),
-                                    request.getParameter("endTime")));
-                    request.setAttribute("startDate", request.getParameter("startDate"));
-                    request.setAttribute("endDate", request.getParameter("endDate"));
-                    request.setAttribute("startTime", request.getParameter("startTime"));
-                    request.setAttribute("endTime", request.getParameter("endTime"));
+                            mealRestController.getAllFiltered(startDate, endDate, startTime, endTime));
                 } else {
                     request.setAttribute("meals",
                             mealRestController.getAll());
