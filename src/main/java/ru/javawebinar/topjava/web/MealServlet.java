@@ -77,18 +77,15 @@ public class MealServlet extends HttpServlet {
             case "all":
             default:
                 log.info("getAll");
-
                 if (request.getParameterNames().hasMoreElements()) {
                     LocalDate startDate = request.getParameter("startDate").isEmpty() ?
-                            LocalDate.MIN : LocalDate.parse(request.getParameter("startDate"));
+                            null : LocalDate.parse(request.getParameter("startDate"));
                     LocalDate endDate = request.getParameter("endDate").isEmpty() ?
-                            LocalDate.MAX : LocalDate.parse(request.getParameter("endDate"));
+                            null : LocalDate.parse(request.getParameter("endDate"));
                     LocalTime startTime = request.getParameter("startTime").isEmpty() ?
-                            LocalTime.MIN : LocalTime.parse(request.getParameter("startTime"));
+                            null : LocalTime.parse(request.getParameter("startTime"));
                     LocalTime endTime = request.getParameter("endTime").isEmpty() ?
-                            LocalTime.MAX : LocalTime.parse(request.getParameter("endTime"));
-                    // Я не могу передавать данные без проверки, потому что если значение null,
-                    // во время парсинга даты/времени возникает Exception
+                            null : LocalTime.parse(request.getParameter("endTime"));
                     request.setAttribute("meals",
                             mealRestController.getAllFiltered(startDate, endDate, startTime, endTime));
                 } else {
