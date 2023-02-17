@@ -18,6 +18,9 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseDate;
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseTime;
+
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
     private MealRestController mealRestController;
@@ -78,16 +81,12 @@ public class MealServlet extends HttpServlet {
             default:
                 log.info("getAll");
                 if (request.getParameterNames().hasMoreElements()) {
-                    LocalDate startDate = request.getParameter("startDate").isEmpty() ?
-                            null : LocalDate.parse(request.getParameter("startDate"));
-                    LocalDate endDate = request.getParameter("endDate").isEmpty() ?
-                            null : LocalDate.parse(request.getParameter("endDate"));
-                    LocalTime startTime = request.getParameter("startTime").isEmpty() ?
-                            null : LocalTime.parse(request.getParameter("startTime"));
-                    LocalTime endTime = request.getParameter("endTime").isEmpty() ?
-                            null : LocalTime.parse(request.getParameter("endTime"));
+                    LocalDate startDate = parseDate(request.getParameter("startDate"));
+                    LocalDate endDate = parseDate(request.getParameter("endDate"));
+                    LocalTime startTime = parseTime(request.getParameter("startTime"));
+                    LocalTime endTime = parseTime(request.getParameter("endTime"));
                     request.setAttribute("meals",
-                            mealRestController.getAllFiltered(startDate, endDate, startTime, endTime));
+                            mealRestController.getBetweenHalfOpen(startDate, endDate, startTime, endTime));
                 } else {
                     request.setAttribute("meals",
                             mealRestController.getAll());

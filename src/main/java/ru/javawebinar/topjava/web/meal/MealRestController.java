@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web.meal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
@@ -29,16 +30,13 @@ public class MealRestController {
         return MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-        log.info("getAllFiltered");
+    public List<MealTo> getBetweenHalfOpen(@Nullable LocalDate startDate, @Nullable LocalDate endDate,
+                                           @Nullable LocalTime startTime, @Nullable LocalTime endTime) {
+        log.info("getBetween dates ({} - {}) time ({} - {})", startDate, endDate, startTime, endTime);
+        int userId = SecurityUtil.authUserId();
+        List<Meal> filteredMeal = service.getBetweenHalfOpen(startDate, endDate, userId);
 
-        return MealsUtil.getFilteredTos(
-                service.getAllFiltered(SecurityUtil.authUserId(),
-                        startDate == null ? LocalDate.MIN : startDate,
-                        endDate == null ? LocalDate.MAX : endDate),
-                SecurityUtil.authUserCaloriesPerDay(),
-                startTime == null ? LocalTime.MIN : startTime,
-                endTime == null ? LocalTime.MAX : endTime);
+        return MealsUtil.getFilteredTos(filteredMeal, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime);
     }
 
     public Meal get(int id) {
