@@ -11,17 +11,10 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.Util;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -42,12 +35,13 @@ public class MealServiceTest {
         // It uses java.util.logging and logged via jul-to-slf4j bridge
         SLF4JBridgeHandler.install();
     }
+
     @Autowired
     private MealService service;
 
     @Test
     public void get() {
-        Meal meal = service.get(MEAL_ID_01_USER, USER_ID);
+        Meal meal = service.get(USER_MEAL_ID_01, USER_ID);
         assertMatch(meal, meal1);
     }
 
@@ -59,32 +53,25 @@ public class MealServiceTest {
 
     @Test
     public void getBetweenInclusive() {
-        LocalDate startDate = LocalDate.of(2020, Month.JANUARY, 30);
+        LocalDate startDate = LocalDate.of(2020, Month.JANUARY, 31);
         LocalDate endDate = LocalDate.of(2020, Month.JANUARY, 31);
+        assertMatch(service.getBetweenInclusive(startDate, endDate, USER_ID), meal7, meal6, meal5, meal4);
+    }
 
-        List<Meal> mealInclusive = service.getBetweenInclusive(startDate, endDate, USER_ID);
-        List<Meal> expected = Stream.of(meal7, meal6, meal5, meal4, meal3, meal2, meal1)
-                .filter(meal -> Util.isBetweenHalfOpen(meal.getDate(), startDate, endDate.plusDays(1)))
-                .sorted(Comparator.comparing(Meal::getDateTime)
-                        .reversed())
-                .collect(Collectors.toList());
-        assertMatch(mealInclusive, expected);
+    @Test
+    public void getBetweenInclusiveNullFilter() {
+        assertMatch(service.getBetweenInclusive(null, null, USER_ID), meal7, meal6, meal5, meal4, meal3, meal2, meal1);
     }
 
     @Test
     public void getAll() {
-        List<Meal> all = service.getAll(USER_ID);
-        List<Meal> expected = Stream.of(meal7, meal6, meal5, meal4, meal3, meal2, meal1)
-                .sorted(Comparator.comparing(Meal::getDateTime)
-                        .reversed())
-                .collect(Collectors.toList());
-        assertMatch(all, expected);
+        assertMatch(service.getAll(USER_ID), meal7, meal6, meal5, meal4, meal3, meal2, meal1);
     }
 
     @Test
     public void duplicateDateMealCreated() {
         assertThrows(DataAccessException.class, () ->
-                service.create(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0),
+                service.create(new Meal(meal2.getDateTime(),
                         "Duplicate", 666), USER_ID));
     }
 
@@ -99,6 +86,12 @@ public class MealServiceTest {
     public void updateNotFound() {
         Meal updated = getUpdated();
         assertThrows(NotFoundException.class, () -> service.update(updated, NOT_FOUND));
+    }
+
+    @Test
+    public void updateOtherUserMealNotFound() {
+        Meal updated = new Meal(meal8);
+        assertThrows(NotFoundException.class, () -> service.update(updated, USER_ID));
     }
 
     @Test
@@ -117,8 +110,18 @@ public class MealServiceTest {
     }
 
     @Test
+    public void getOtherUserMealNotFound() {
+        assertThrows(NotFoundException.class, () -> service.get(ADMIN_MEAL_ID_01, USER_ID));
+    }
+
+    @Test
     public void deletedMealNotFound() {
         assertThrows(NotFoundException.class, () -> service.delete(MEAL_NOT_FOUND, USER_ID));
+    }
+
+    @Test
+    public void deletedOtherUserMealNotFound() {
+        assertThrows(NotFoundException.class, () -> service.delete(ADMIN_MEAL_ID_01, USER_ID));
     }
 
     @Test
