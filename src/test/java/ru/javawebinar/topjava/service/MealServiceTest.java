@@ -24,6 +24,7 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @ContextConfiguration({
         "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-jdbc-repo.xml",
         "classpath:spring/spring-db.xml"
 })
 @RunWith(SpringRunner.class)
@@ -90,7 +91,7 @@ public class MealServiceTest {
 
     @Test
     public void updateOtherUserMealNotFound() {
-        Meal updated = new Meal(meal8);
+        Meal updated = new Meal(adminMeal1);
         assertThrows(NotFoundException.class, () -> service.update(updated, USER_ID));
     }
 

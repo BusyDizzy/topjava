@@ -55,7 +55,6 @@ public class Meal extends AbstractBaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
-
     }
 
     public void setCalories(int calories) {
