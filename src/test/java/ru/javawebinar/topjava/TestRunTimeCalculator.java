@@ -6,24 +6,28 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-public class CustomJUnitStopWatch extends Stopwatch {
+public class TestRunTimeCalculator extends Stopwatch {
+    private static final Map<String, Long> testsRunTimeMap = new TreeMap<>();
+    private static final Logger log = LoggerFactory.getLogger(TestRunTimeCalculator.class);
 
-    private static long nanoTime;
-
-    private static final Logger log = LoggerFactory.getLogger(CustomJUnitStopWatch.class);
 
     private static void logInfo(Description description, String status, long nanos) {
         String testName = description.getMethodName();
-        if (status.equals("succeeded")) {
-            log.info("Test {} {}, spent {} microseconds", testName, status, TimeUnit.NANOSECONDS.toMicros(nanos));
-            nanoTime += TimeUnit.NANOSECONDS.toMicros(nanos);
-        }
-        if (testName.equals("duplicateDateTimeCreate") && status.equals("succeeded")) {
-            log.info("Class {} successfully finished all tests in {} microseconds", description.getTestClass().getSimpleName(), nanoTime);
+        log.info("Test {} {}, spent {} milliseconds", testName, status, TimeUnit.NANOSECONDS.toMillis(nanos));
+        String message = testName + " finished with status " + status + " within";
+        testsRunTimeMap.put(message, TimeUnit.NANOSECONDS.toMillis(nanos));
+    }
+
+    public static void printResultingTimeMap() {
+        for (Map.Entry<String, Long> pairs : testsRunTimeMap.entrySet()) {
+            log.info(" Test {} {} milliseconds", pairs.getKey(), pairs.getValue());
         }
     }
+
 
     @Override
     protected void succeeded(long nanos, Description description) {

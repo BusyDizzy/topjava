@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.repository.jpa;
 
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
@@ -21,16 +20,13 @@ public class JpaMealRepository implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
-        Meal updatedMeal = null;
         User ref = em.getReference(User.class, userId);
-        meal.setUser(ref);
-        if (!meal.isNew()) {
-            updatedMeal = get(meal.getId(), userId);
-        }
         if (meal.isNew()) {
+            meal.setUser(ref);
             em.persist(meal);
             return meal;
-        } else if (updatedMeal != null && updatedMeal.getUser().getId() == userId) {
+        } else if (get(meal.getId(), userId) != null) {
+            meal.setUser(ref);
             return em.merge(meal);
         }
         return null;
@@ -47,11 +43,8 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> mealList = em.createNamedQuery(Meal.GET, Meal.class)
-                .setParameter("id", id)
-                .setParameter("user_id", userId)
-                .getResultList();
-        return DataAccessUtils.singleResult(mealList);
+        Meal meal = em.find(Meal.class, id);
+        return meal != null ? meal.getUser().getId() == userId ? meal : null : null;
     }
 
     @Override
@@ -64,9 +57,9 @@ public class JpaMealRepository implements MealRepository {
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return em.createNamedQuery(Meal.ALL_FILTERED, Meal.class)
-                .setParameter("user_id", userId)
-                .setParameter(1, startDateTime)
-                .setParameter(2, endDateTime)
+                .setParameter(1, userId)
+                .setParameter(2, startDateTime)
+                .setParameter(3, endDateTime)
                 .getResultList();
     }
 }
