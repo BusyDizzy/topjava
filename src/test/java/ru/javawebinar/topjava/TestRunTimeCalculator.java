@@ -1,51 +1,33 @@
 package ru.javawebinar.topjava;
 
-import org.junit.AssumptionViolatedException;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class TestRunTimeCalculator extends Stopwatch {
-    private static final Map<String, Long> testsRunTimeMap = new TreeMap<>();
+    private static final Map<String, Long> testsRunTimeMap = new LinkedHashMap<>();
     private static final Logger log = LoggerFactory.getLogger(TestRunTimeCalculator.class);
 
-
-    private static void logInfo(Description description, String status, long nanos) {
+    private static void logInfo(Description description, long nanos) {
         String testName = description.getMethodName();
-        log.info("Test {} {}, spent {} milliseconds", testName, status, TimeUnit.NANOSECONDS.toMillis(nanos));
-        String message = testName + " finished with status " + status + " within";
-        testsRunTimeMap.put(message, TimeUnit.NANOSECONDS.toMillis(nanos));
+        testsRunTimeMap.put(testName, TimeUnit.NANOSECONDS.toMillis(nanos));
     }
 
-    public static void printResultingTimeMap() {
+    public static void printTestRunTime() {
+        StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Long> pairs : testsRunTimeMap.entrySet()) {
-            log.info(" Test {} {} milliseconds", pairs.getKey(), pairs.getValue());
+            sb.append(pairs.getKey()).append(" - ").append(pairs.getValue()).append(" ms ").append("\n");
         }
-    }
-
-
-    @Override
-    protected void succeeded(long nanos, Description description) {
-        logInfo(description, "succeeded", nanos);
-    }
-
-    @Override
-    protected void failed(long nanos, Throwable e, Description description) {
-        logInfo(description, "failed", nanos);
-    }
-
-    @Override
-    protected void skipped(long nanos, AssumptionViolatedException e, Description description) {
-        logInfo(description, "skipped", nanos);
+        log.info(sb.toString().trim());
     }
 
     @Override
     protected void finished(long nanos, Description description) {
-        logInfo(description, "finished", nanos);
+        logInfo(description, nanos);
     }
 }

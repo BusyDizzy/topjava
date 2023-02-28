@@ -19,7 +19,7 @@ import java.time.Month;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
-import static ru.javawebinar.topjava.TestRunTimeCalculator.printResultingTimeMap;
+import static ru.javawebinar.topjava.TestRunTimeCalculator.printTestRunTime;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
@@ -31,9 +31,13 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
-
     @Rule
     public TestRunTimeCalculator stopWatch = new TestRunTimeCalculator();
+
+    @AfterClass
+    public static void afterClass() {
+        printTestRunTime();
+    }
 
     @Autowired
     private MealService service;
@@ -115,10 +119,5 @@ public class MealServiceTest {
     @Test
     public void getBetweenWithNullDates() {
         MEAL_MATCHER.assertMatch(service.getBetweenInclusive(null, null, USER_ID), meals);
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        printResultingTimeMap();
     }
 }
