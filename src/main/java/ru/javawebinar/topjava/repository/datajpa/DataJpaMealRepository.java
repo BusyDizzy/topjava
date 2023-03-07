@@ -3,9 +3,9 @@ package ru.javawebinar.topjava.repository.datajpa;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,12 +24,13 @@ public class DataJpaMealRepository implements MealRepository {
     }
 
     @Override
+    @Transactional
     public Meal save(Meal meal, int userId) {
-        meal.setUser(crudUserRepository.getReferenceById(userId));
-        if (meal.isNew()) {
-            return crudMealRepository.save(meal);
+        if (!meal.isNew() && get(meal.id(), userId) == null) {
+            return null;
         }
-        return get(meal.id(), userId) == null ? null : crudMealRepository.save(meal);
+        meal.setUser(crudUserRepository.getReferenceById(userId));
+        return crudMealRepository.save(meal);
     }
 
     @Override
@@ -39,23 +40,23 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        Meal meal = crudMealRepository.findById(id).orElse(null);
-        return meal != null && meal.getUser().getId() == userId ? meal : null;
+        return crudMealRepository.findById(id)
+                .filter(m -> m.getUser().getId() == userId)
+                .orElse(null);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        User user = crudUserRepository.findById(userId).orElse(null);
-        return crudMealRepository.findByUser(user, SORT_DATE_TIME);
+        return crudMealRepository.findByUserId(userId, SORT_DATE_TIME);
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        User user = crudUserRepository.findById(userId).orElse(null);
-        return crudMealRepository.findByUserAndDateTimeGreaterThanEqualAndDateTimeLessThan(user, startDateTime, endDateTime, SORT_DATE_TIME);
+        return crudMealRepository.findAllBetweenHalfOpen(userId, startDateTime, endDateTime);
     }
 
     @Override
+    @Transactional
     public Meal getWithUser(int id, int userId) {
         return crudMealRepository.getWithUser(id, userId);
     }
