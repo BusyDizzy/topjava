@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -45,7 +44,6 @@ public class DataJpaUserRepository implements UserRepository {
     }
 
     @Override
-    @Transactional
     public User getWithMeals(int id) {
         return crudUserRepository.getWithMeals(id);
     }

@@ -18,7 +18,7 @@ public class HsqldbJdbcMealRepository extends AbstractJdbcMealRepository {
     }
 
     @Override
-    public Object getDateTime(LocalDateTime dateTime) {
+    protected Timestamp getDateTime(LocalDateTime dateTime) {
         return Timestamp.valueOf(dateTime);
     }
 }
