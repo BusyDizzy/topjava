@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataAccessException;
+import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -40,7 +41,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     public void setup() {
         cacheManager.getCache("users").clear();
         String[] activeProfiles = environment.getActiveProfiles();
-        if (!Arrays.asList(activeProfiles).contains("jdbc")) {
+        if (!Arrays.asList(activeProfiles).contains(Profiles.JDBC)) {
             jpaUtil.clear2ndLevelHibernateCache();
         }
     }
@@ -74,8 +75,8 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void get() {
-        User user = service.get(USER_ID);
-        USER_MATCHER.assertMatch(user, UserTestData.user);
+        User admin = service.get(ADMIN_ID);
+        USER_MATCHER.assertMatch(admin, UserTestData.admin);
     }
 
     @Test
@@ -85,15 +86,15 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void getByEmail() {
-        User user = service.getByEmail("admin@gmail.com");
-        USER_MATCHER.assertMatch(user, admin);
+        User admin = service.getByEmail("admin@gmail.com");
+        USER_MATCHER.assertMatch(UserTestData.admin, admin);
     }
 
     @Test
     public void update() {
         User updated = getUpdated();
         service.update(updated);
-        USER_MATCHER.assertMatch(service.get(USER_ID), getUpdated());
+        USER_MATCHER.assertMatch(service.get(ADMIN_ID), getUpdated());
     }
 
     @Test

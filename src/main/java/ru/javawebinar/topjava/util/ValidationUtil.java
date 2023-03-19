@@ -56,19 +56,11 @@ public class ValidationUtil {
         return rootCause != null ? rootCause : t;
     }
 
-    public static <T> void jdbcValidate(T entity) {
-        Validator validator = getValidator();
+    public static <T> void validate(T entity) {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<T>> violations = validator.validate(entity);
         if (violations.size() > 0) {
             throw new ConstraintViolationException(violations);
         }
-    }
-
-    private static Validator getValidator() {
-        Configuration<?> config = Validation.byDefaultProvider().configure();
-        ValidatorFactory factory = config.buildValidatorFactory();
-        Validator validator = factory.getValidator();
-        factory.close();
-        return validator;
     }
 }

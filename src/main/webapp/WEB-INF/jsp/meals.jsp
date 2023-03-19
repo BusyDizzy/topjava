@@ -8,10 +8,9 @@
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-<%--    <h3><a href="${pageContext.request.contextPath}"><spring:message code="meals.home"/></a></h3>--%>
     <hr/>
     <h2><spring:message code="meals.title"/></h2>
-    <form method="get" action="${pageContext.request.contextPath}/meals/filter">
+    <form method="get" action="meals/filter">
         <input type="hidden" name="action" value="filter">
         <dl>
             <dt><spring:message code="meals.fromdate"/></dt>
@@ -32,7 +31,7 @@
         <button type="submit"><spring:message code="meals.filter"/></button>
     </form>
     <hr/>
-    <a href="${pageContext.request.contextPath}/meals/edit"><spring:message code="meals.new"/></a>
+    <a href="meals/edit"><spring:message code="meals.new"/></a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
