@@ -24,7 +24,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class JdbcUserRepository implements UserRepository {
 
-    public static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
+    private static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,7 +32,7 @@ public class JdbcUserRepository implements UserRepository {
 
     private final SimpleJdbcInsert insertUser;
 
-    ResultSetExtractor<List<User>> resultExtractor = resultSet -> {
+    private static final ResultSetExtractor<List<User>> RESULT_EXTRACTOR = resultSet -> {
         Map<Integer, User> userMap = new LinkedHashMap<>();
         int i = 0;
         while (resultSet.next()) {
@@ -41,17 +41,12 @@ public class JdbcUserRepository implements UserRepository {
             if (user == null) {
                 user = ROW_MAPPER.mapRow(resultSet, i);
                 userMap.put(id, user);
+                user.setRoles(EnumSet.noneOf(Role.class));
             }
             i++;
             String role = resultSet.getString("role");
             if (role != null) {
-                EnumSet<Role> roleEnumSet = EnumSet.of(Enum.valueOf(Role.class, role));
-                if (user.getRoles() != null) {
-                    roleEnumSet.addAll(user.getRoles());
-                }
-                user.setRoles(roleEnumSet);
-            } else {
-                user.setRoles(EnumSet.noneOf(Role.class));
+                user.getRoles().add(Role.valueOf(role));
             }
         }
         return new ArrayList<>(userMap.values());
@@ -84,24 +79,28 @@ public class JdbcUserRepository implements UserRepository {
             }
             jdbcTemplate.update("DELETE FROM user_role WHERE user_id=?", user.getId());
         }
-
         if (!user.getRoles().isEmpty()) {
-            jdbcTemplate.batchUpdate("INSERT INTO user_role VALUES (?,?)", new BatchPreparedStatementSetter() {
-                Iterator<Role> roleIterator = user.getRoles().iterator();
-
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setInt(1, user.getId());
-                    ps.setObject(2, roleIterator.next().toString());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return user.getRoles().size();
-                }
-            });
+            batchRoleInsert(user);
         }
         return user;
+    }
+
+    private void batchRoleInsert(User user) {
+        Set<Role> roles = user.getRoles();
+        jdbcTemplate.batchUpdate("INSERT INTO user_role VALUES (?,?)", new BatchPreparedStatementSetter() {
+            final Iterator<Role> roleIterator = roles.iterator();
+
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setInt(1, user.getId());
+                ps.setObject(2, roleIterator.next().name());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return roles.size();
+            }
+        });
     }
 
     @Override
@@ -112,20 +111,21 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT users.*, ur.role FROM users LEFT JOIN user_role ur on users.id = ur.user_id WHERE id=?", resultExtractor, id);
+        List<User> users = jdbcTemplate.query("SELECT users.*, ur.role FROM users LEFT JOIN user_role ur on" +
+                " users.id = ur.user_id WHERE id=?", RESULT_EXTRACTOR, id);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public User getByEmail(String email) {
-//        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        List<User> users = jdbcTemplate.query("SELECT users.*, ur.role FROM users LEFT JOIN user_role ur on users.id = ur.user_id WHERE email=?", resultExtractor, email);
+        List<User> users = jdbcTemplate.query("SELECT users.*, ur.role FROM users LEFT JOIN user_role ur on" +
+                " users.id = ur.user_id WHERE email=?", RESULT_EXTRACTOR, email);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public List<User> getAll() {
         return jdbcTemplate.query("SELECT users.*, ur.role FROM users LEFT JOIN user_role " +
-                "ur on users.id = ur.user_id ORDER BY name, email", resultExtractor);
+                "ur on users.id = ur.user_id ORDER BY name, email", RESULT_EXTRACTOR);
     }
 }

@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.web;
+package ru.javawebinar.topjava.web.meal;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.web.meal.AbstractMealController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
@@ -33,7 +35,7 @@ public class JspMealController extends AbstractMealController {
     @GetMapping("/edit")
     public String edit(Model model, HttpServletRequest request) {
         if (StringUtils.hasLength(request.getParameter("id"))) {
-            model.addAttribute("meal", get(Integer.parseInt(request.getParameter("id"))));
+            model.addAttribute("meal", get(getId(request)));
         } else {
             model.addAttribute("meal", new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000));
         }
@@ -42,7 +44,7 @@ public class JspMealController extends AbstractMealController {
 
     @GetMapping("/delete")
     public String delete(HttpServletRequest request) {
-        delete(Integer.parseInt(request.getParameter("id")));
+        delete(getId(request));
         return "redirect:/meals";
     }
 
@@ -54,7 +56,7 @@ public class JspMealController extends AbstractMealController {
                 Integer.parseInt(request.getParameter("calories")));
 
         if (StringUtils.hasLength(request.getParameter("id"))) {
-            update(meal, Integer.parseInt(request.getParameter("id")));
+            update(meal, getId(request));
         } else {
             create(meal);
         }
@@ -69,5 +71,10 @@ public class JspMealController extends AbstractMealController {
                 parseLocalDate(request.getParameter("endDate")),
                 parseLocalTime(request.getParameter("endTime"))));
         return "meals";
+    }
+
+    private int getId(HttpServletRequest request) {
+        String paramId = Objects.requireNonNull(request.getParameter("id"));
+        return Integer.parseInt(paramId);
     }
 }

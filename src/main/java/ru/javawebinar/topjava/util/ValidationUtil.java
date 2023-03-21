@@ -11,6 +11,8 @@ import java.util.Set;
 
 public class ValidationUtil {
 
+    private final static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
     private ValidationUtil() {
     }
 
@@ -57,9 +59,8 @@ public class ValidationUtil {
     }
 
     public static <T> void validate(T entity) {
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<T>> violations = validator.validate(entity);
-        if (violations.size() > 0) {
+        if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
     }
