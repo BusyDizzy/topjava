@@ -1,10 +1,12 @@
 package ru.javawebinar.topjava.service;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,8 +20,11 @@ public class MealService {
 
     private final MealRepository repository;
 
-    public MealService(MealRepository repository) {
+    private final ModelMapper modelMapper;
+
+    public MealService(MealRepository repository, ModelMapper modelMapper) {
         this.repository = repository;
+        this.modelMapper = modelMapper;
     }
 
     public Meal get(int id, int userId) {
@@ -50,5 +55,9 @@ public class MealService {
 
     public Meal getWithUser(int id, int userId) {
         return checkNotFoundWithId(repository.getWithUser(id, userId), id);
+    }
+
+    public Meal convertToMeal(MealTo mealTo) {
+        return modelMapper.map(mealTo, Meal.class);
     }
 }
