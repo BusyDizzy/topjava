@@ -33,4 +33,9 @@ public class ProfileRestController extends AbstractUserController {
     public String testUTF() {
         return "Русский текст";
     }
+
+    @GetMapping("/withMeals")
+    public User getWithMeals() {
+        return super.getWithMeals(authUserId());
+    }
 }

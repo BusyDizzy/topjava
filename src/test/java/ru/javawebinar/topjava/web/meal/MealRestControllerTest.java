@@ -6,15 +6,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.javawebinar.topjava.MealTestData;
+import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
-import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 
 public class MealRestControllerTest extends AbstractControllerTest {
 
@@ -81,20 +79,39 @@ public class MealRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.get(REST_URL))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(meals, DEFAULT_CALORIES_PER_DAY)));
+                .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(meals, UserTestData.user.getCaloriesPerDay())));
+    }
+
+    // В параметрах getBetween принимаем LocalDateTime
+//    @Test
+//    void getBetweenLocalDateTimeFormatter() throws Exception {
+//        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + "filter")
+//                .param("start", "2020-01-31T09:00:00")
+//                .param("end", "2020-02-01T21:00:00"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+//                .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal7, meal6, meal5), UserTestData.user.getCaloriesPerDay())));
+//    }
+
+    // В параметрах getBetween принимаем LocalDate и LocalTime
+    @Test
+    void getBetweenCustomConverter() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter-by-datetime")
+                .param("startDate", "2020-01-31")
+                .param("startTime", "09:00")
+                .param("endDate", "2020-02-01")
+                .param("endTime", "21:00"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal7, meal6, meal5), UserTestData.user.getCaloriesPerDay())));
     }
 
     @Test
-    void getBetween() throws Exception {
-        String filter = "filter?" + "start=2020-01-31T10:00:00" + "&" + "end=2020-02-01T20:00:00";
-        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + filter))
+    void getBetweenCustomConverterNullValues() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter-by-datetime")
+                .param("startDate", "2020-01-31"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        List<MealTo> actualTo = JsonUtil.readValues(action.andReturn().getResponse().getContentAsString(), MealTo.class);
-        List<Meal> actual = new ArrayList<>();
-        for (MealTo mealTo : actualTo) {
-            actual.add(mealService.convertToMeal(mealTo));
-        }
-        MEAL_MATCHER.assertMatch(actual, meal6, meal5);
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal7, meal6, meal5, meal4), UserTestData.user.getCaloriesPerDay())));
     }
 }
