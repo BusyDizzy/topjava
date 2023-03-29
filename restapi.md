@@ -20,7 +20,7 @@ curl --location --request POST 'http://localhost:8080/topjava/rest/admin/users/1
 
 __________
 ### Get user with his meals
-curl --location 'http://localhost:8080/topjava/rest/admin/users/100001/meals'
+curl --location 'http://localhost:8080/topjava/rest/admin/users/100001/with-meals'
 #### Produces:
 {"id":100001,"name":"Admin","email":"admin@gmail.com","password":"admin","enabled":true,"registered":
 "2023-03-28T15:24:54.713+00:00","roles":["USER","ADMIN"],"caloriesPerDay":2000,
@@ -81,7 +81,7 @@ curl --location 'http://localhost:8080/topjava/rest/profile'
 "registered":"2023-03-28T14:20:47.032+00:00","roles":["USER"],"caloriesPerDay":2000,"meals":null}
 __________
 ### Get profile with meals
-curl --location 'http://localhost:8080/topjava/rest/profile/withMeals'
+curl --location 'http://localhost:8080/topjava/rest/profile/with-meals'
 #### Produces:
 {"id":100000,"name":"User","email":"user@yandex.ru","password":"password","enabled":true,"registered":
 "2023-03-28T15:29:07.532+00:00","roles":["USER"],"caloriesPerDay":2000,
@@ -167,7 +167,7 @@ curl --location --request DELETE 'http://localhost:8080/topjava/rest/meals/10001
 __________
 
 ### Get filtered meal by date and time
-curl --location --request GET 'http://localhost:8080/topjava/rest/meals/filter-by-datetime?startDate=2020-01-31&startTime=09%3A00' \
+curl --location --request GET 'http://localhost:8080/topjava/rest/meals/filter?startDate=2020-01-31&startTime=09%3A00' \
 --header 'Content-Type: application/json' \
 --data '{
 "id": null,

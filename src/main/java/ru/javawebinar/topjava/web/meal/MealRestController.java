@@ -55,19 +55,11 @@ public class MealRestController extends AbstractMealController {
         super.update(meal, id);
     }
 
-    // 2.2 в параметрах getBetween принимать LocalDateTime
-
-//    @GetMapping("/filter")
-//    public List<MealTo> getBetweenLocalDateTimeFormatter(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-//                                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
-//        return super.getBetween(start.toLocalDate(), start.toLocalTime(), end.toLocalDate(), end.toLocalTime());
-//    }
-
-    @GetMapping("/filter-by-datetime")
-    public List<MealTo> getBetweenCustomConverter(@RequestParam(required = false) @Nullable LocalDate startDate,
-                                                  @RequestParam(required = false) @Nullable LocalTime startTime,
-                                                  @RequestParam(required = false) @Nullable LocalDate endDate,
-                                                  @RequestParam(required = false) @Nullable LocalTime endTime) {
+    @GetMapping("/filter")
+    public List<MealTo> getBetweenCustomConverter(@Nullable LocalDate startDate,
+                                                  @Nullable LocalTime startTime,
+                                                  @Nullable LocalDate endDate,
+                                                  @Nullable LocalTime endTime) {
         return super.getBetween(startDate, startTime, endDate, endTime);
     }
 }

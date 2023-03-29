@@ -82,21 +82,9 @@ public class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(meals, UserTestData.user.getCaloriesPerDay())));
     }
 
-    // В параметрах getBetween принимаем LocalDateTime
-//    @Test
-//    void getBetweenLocalDateTimeFormatter() throws Exception {
-//        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + "filter")
-//                .param("start", "2020-01-31T09:00:00")
-//                .param("end", "2020-02-01T21:00:00"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-//                .andExpect(MEALTO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal7, meal6, meal5), UserTestData.user.getCaloriesPerDay())));
-//    }
-
-    // В параметрах getBetween принимаем LocalDate и LocalTime
     @Test
-    void getBetweenCustomConverter() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL + "filter-by-datetime")
+    void getBetween() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter")
                 .param("startDate", "2020-01-31")
                 .param("startTime", "09:00")
                 .param("endDate", "2020-02-01")
@@ -107,8 +95,8 @@ public class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void getBetweenCustomConverterNullValues() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL + "filter-by-datetime")
+    void getBetweenNullValues() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter")
                 .param("startDate", "2020-01-31"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
