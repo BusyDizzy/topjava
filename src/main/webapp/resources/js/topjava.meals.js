@@ -1,8 +1,8 @@
-const userAjaxUrl = "admin/users/";
+const mealAjaxUrl = "profile/meals/";
 
 // https://stackoverflow.com/a/5064235/548473
 const ctx = {
-    ajaxUrl: userAjaxUrl
+    ajaxUrl: mealAjaxUrl
 };
 
 // $(document).ready(function () {
@@ -13,19 +13,13 @@ $(function () {
             "info": true,
             "columns": [
                 {
-                    "data": "name"
+                    "data": "dateTime"
                 },
                 {
-                    "data": "email"
+                    "data": "description"
                 },
                 {
-                    "data": "roles"
-                },
-                {
-                    "data": "enabled"
-                },
-                {
-                    "data": "registered"
+                    "data": "calories"
                 },
                 {
                     "defaultContent": "Edit",
@@ -39,27 +33,33 @@ $(function () {
             "order": [
                 [
                     0,
-                    "asc"
+                    "desc"
                 ]
             ]
         })
     );
 });
 
-function enable(id, checkbox) {
-    let enabled = checkbox.is(":checked");
+let filterUrl = "";
+
+function filter() {
     $.ajax({
-        url: ctx.ajaxUrl + id,
-        data: "enabled=" + enabled,
-        type: "POST"
-    }).done(function () {
-        checkbox.closest("tr").attr("data-user-enabled", enabled);
-        successNoty(enabled ? "Enabled" : "Disabled");
+        url: ctx.ajaxUrl + "filter/?" + $('#filter').serialize(),
+        type: "GET"
+    }).done(function (data) {
+        eraseAndReload(data)
+        filterUrl = "filter/?" + $('#filter').serialize();
     });
 }
 
 function updateTable() {
-    $.get(ctx.ajaxUrl, function (data) {
+    $.get(ctx.ajaxUrl + filterUrl, function (data) {
         eraseAndReload(data);
     });
 }
+
+function clearFilter() {
+    filterUrl = "";
+    updateTable();
+}
+

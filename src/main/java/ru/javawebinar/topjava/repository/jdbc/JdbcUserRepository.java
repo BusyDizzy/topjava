@@ -98,6 +98,11 @@ public class JdbcUserRepository implements UserRepository {
         return users;
     }
 
+    @Override
+    public boolean enable(int id, boolean enabled) {
+        throw new UnsupportedOperationException();
+    }
+
     private void insertRoles(User u) {
         Set<Role> roles = u.getRoles();
         if (!CollectionUtils.isEmpty(roles)) {
