@@ -44,11 +44,11 @@ let filterUrl = "";
 
 function filter() {
     $.ajax({
-        url: ctx.ajaxUrl + "filter/?" + $('#filter').serialize(),
+        url: ctx.ajaxUrl + "filter?" + $('#filter').serialize(),
         type: "GET"
     }).done(function (data) {
         eraseAndReload(data)
-        filterUrl = "filter/?" + $('#filter').serialize();
+        filterUrl = "filter?" + $('#filter').serialize();
     });
 }
 

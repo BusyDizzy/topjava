@@ -52,10 +52,14 @@ function enable(id, checkbox) {
         url: ctx.ajaxUrl + id,
         data: "enabled=" + enabled,
         type: "POST"
-    }).done(function () {
-        checkbox.closest("tr").attr("data-user-enabled", enabled);
-        successNoty(enabled ? "Enabled" : "Disabled");
-    });
+    })
+        .done(function () {
+            checkbox.closest("tr").attr("data-user-enabled", enabled);
+            successNoty(enabled ? "Enabled" : "Disabled");
+        })
+        .fail(function () {
+            checkbox.prop("checked", !enabled);
+        });
 }
 
 function updateTable() {
