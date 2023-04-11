@@ -70,7 +70,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modalTitle"><spring:message code="meal.add"/></h4>
+                <h4 class="modal-title" id="modalTitle"></h4>
                 <button type="button" class="close" data-dismiss="modal" onclick="closeNoty()">&times;</button>
             </div>
             <div class="modal-body">
@@ -111,9 +111,10 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
-<link rel="stylesheet" type="text/css" href="resources/js/jquery.datetimepicker.css"/>
-<script src="resources/js/jquery.js"></script>
-<script src="resources/js/jquery.datetimepicker.full.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="webjars/datetimepicker/2.5.20-1/jquery.datetimepicker.css"/>
+<script src="webjars/datetimepicker/2.5.20-1/jquery.js"></script>
+<script src="webjars/datetimepicker/2.5.20-1/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
     const i18n = [];

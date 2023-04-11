@@ -33,7 +33,6 @@ $(function () {
                     "render": function (date, type, row) {
                         if (type === "display") {
                             return date.replace('T', ' ').substring(0, 16);
-                            ;
                         }
                         return date;
                     }

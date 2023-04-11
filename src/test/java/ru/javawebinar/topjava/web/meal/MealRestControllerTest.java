@@ -87,6 +87,13 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void getAllUnAuth() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void getBetween() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + "filter")
                 .with(userHttpBasic(user))
