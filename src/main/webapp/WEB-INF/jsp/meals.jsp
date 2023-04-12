@@ -111,35 +111,11 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
-
 <link rel="stylesheet" type="text/css" href="webjars/datetimepicker/2.5.20-1/jquery.datetimepicker.css"/>
 <script src="webjars/datetimepicker/2.5.20-1/jquery.js"></script>
 <script src="webjars/datetimepicker/2.5.20-1/build/jquery.datetimepicker.full.min.js"></script>
-
-<script type="text/javascript">
-    const i18n = [];
-    i18n["addTitle"] = '<spring:message code="meal.add"/>';
-    i18n["editTitle"] = '<spring:message code="meal.edit"/>';
-
-    jQuery('#dateTime').datetimepicker({
-        format: 'Y-m-d H:i'
-    });
-    jQuery('#startTime').datetimepicker({
-        datepicker: false,
-        format: 'H:i'
-    });
-    jQuery('#endTime').datetimepicker({
-        datepicker: false,
-        format: 'H:i'
-    });
-    jQuery('#startDate').datetimepicker({
-        timepicker: false,
-        format: 'Y-m-d'
-    });
-    jQuery('#endDate').datetimepicker({
-        timepicker: false,
-        format: 'Y-m-d'
-    });
-</script>
-<jsp:include page="fragments/i18n.jsp"/>
+<script type="text/javascript" src="resources/js/topjava.datetimepicker.js"></script>
+<jsp:include page="fragments/i18n.jsp">
+    <jsp:param name="page" value="meal"/>
+</jsp:include>
 </html>

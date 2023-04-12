@@ -22,9 +22,10 @@ function updateRow(id) {
     form.find(":input").val("");
     $("#modalTitle").html(i18n["editTitle"]);
     $.get(ctx.ajaxUrl + id, function (data) {
-        $.each(data, function (key, value) {
-            form.find("input[name='" + key + "']").val(value);
-        });
+        form.find("#id").val(data.id);
+        form.find("#dateTime").val(data.dateTime.replace('T', ' ').substring(0, 16));
+        form.find("#description").val(data.description);
+        form.find("#calories").val(data.calories);
         $('#editRow').modal();
     });
 }
