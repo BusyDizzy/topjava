@@ -35,7 +35,7 @@ class JsonUtilTest {
     @Test
     public void writeWithView() {
         ObjectWriter uiWriter = JacksonObjectMapper.getMapper().writerWithView(View.JsonUI.class);
-        String json = JsonUtil.writeValue(adminMeal1, uiWriter);
+        String json = JsonUtil.writeValue(adminMeal1);
         System.out.println(json);
         assertThat(json, containsString("dateTimeUI"));
     }
