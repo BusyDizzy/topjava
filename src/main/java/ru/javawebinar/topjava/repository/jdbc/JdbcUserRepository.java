@@ -98,6 +98,11 @@ public class JdbcUserRepository implements UserRepository {
         return users;
     }
 
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return Optional.empty();
+    }
+
     private void insertRoles(User u) {
         Set<Role> roles = u.getRoles();
         if (!CollectionUtils.isEmpty(roles)) {
