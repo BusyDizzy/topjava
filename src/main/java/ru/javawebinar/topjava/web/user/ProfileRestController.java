@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -40,10 +41,14 @@ public class ProfileRestController extends AbstractUserController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo, BindingResult result) {
+    public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo, BindingResult result) throws BindException {
         emailValidator.validate(userTo, result);
         if (result.hasErrors()) {
-            throw new DataIntegrityViolationException("User with this email already exists");
+            if (result.getFieldErrors().stream().anyMatch(fe -> fe.getDefaultMessage().equals("User with this email already exists"))) {
+                throw new DataIntegrityViolationException("User with this email already exists");
+            } else {
+                throw new BindException(result);
+            }
         }
         User created = super.create(userTo);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -53,10 +58,14 @@ public class ProfileRestController extends AbstractUserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@Valid @RequestBody UserTo userTo, BindingResult result) {
+    public void update(@Valid @RequestBody UserTo userTo, BindingResult result) throws BindException {
         emailValidator.validate(userTo, result);
         if (result.hasErrors()) {
-            throw new DataIntegrityViolationException("User with this email already exists");
+            if (result.getFieldErrors().stream().anyMatch(fe -> fe.getDefaultMessage().equals("User with this email already exists"))) {
+                throw new DataIntegrityViolationException("User with this email already exists");
+            } else {
+                throw new BindException(result);
+            }
         }
         super.update(userTo, authUserId());
     }
