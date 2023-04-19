@@ -17,7 +17,6 @@ import ru.javawebinar.topjava.to.UserTo;
 import ru.javawebinar.topjava.util.UsersUtil;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.javawebinar.topjava.util.UsersUtil.prepareToSave;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFound;
@@ -53,10 +52,6 @@ public class UserService implements UserDetailsService {
     public User getByEmail(String email) {
         Assert.notNull(email, "email must not be null");
         return checkNotFound(repository.getByEmail(email), "email=" + email);
-    }
-
-    public Optional<User> findByEmail(String email) {
-        return repository.findByEmail(email);
     }
 
     @Cacheable("users")

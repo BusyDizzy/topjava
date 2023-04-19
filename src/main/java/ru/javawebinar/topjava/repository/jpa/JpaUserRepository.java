@@ -10,7 +10,6 @@ import ru.javawebinar.topjava.repository.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @Transactional(readOnly = true)
@@ -72,10 +71,5 @@ public class JpaUserRepository implements UserRepository {
     public List<User> getAll() {
         return em.createNamedQuery(User.ALL_SORTED, User.class)
                 .getResultList();
-    }
-
-    @Override
-    public Optional<User> findByEmail(String email) {
-        return Optional.empty();
     }
 }

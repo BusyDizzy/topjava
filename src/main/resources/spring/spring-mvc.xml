@@ -10,7 +10,7 @@
 
     <bean class="ru.javawebinar.topjava.web.json.JacksonObjectMapper" id="objectMapper" factory-method="getMapper"/>
 
-    <bean class="ru.javawebinar.topjava.util.EmailValidator"/>
+    <bean class="ru.javawebinar.topjava.web.EmailValidator"/>
 
     <!-- serve static resources (*.html, ...) from src/main/webapp/ -->
     <mvc:default-servlet-handler/>
@@ -70,6 +70,10 @@
           p:defaultEncoding="UTF-8">
         <property name="basenames" value="file:///#{systemEnvironment[TOPJAVA_ROOT]}/config/messages/app"/>
         <property name="fallbackToSystemLocale" value="false"/>
+    </bean>
+
+    <bean class="org.springframework.context.support.MessageSourceAccessor">
+        <constructor-arg ref="messageSource"/>
     </bean>
 
     <mvc:interceptors>

@@ -2,6 +2,7 @@ package ru.javawebinar.topjava;
 
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.to.UserTo;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.util.Collections;
@@ -52,6 +53,10 @@ public class UserTestData {
     }
 
     public static String jsonWithPassword(User user, String passw) {
+        return JsonUtil.writeAdditionProps(user, "password", passw);
+    }
+
+    public static String jsonWithPassword(UserTo user, String passw) {
         return JsonUtil.writeAdditionProps(user, "password", passw);
     }
 }

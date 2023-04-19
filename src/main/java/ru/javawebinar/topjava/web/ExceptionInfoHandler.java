@@ -2,14 +2,13 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +27,13 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 @RestControllerAdvice(annotations = RestController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
+
+    private static MessageSourceAccessor messageSourceAccessor;
+
+    public ExceptionInfoHandler(MessageSourceAccessor messageSourceAccessor) {
+        this.messageSourceAccessor = messageSourceAccessor;
+    }
+
     private static final Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
     //  http://stackoverflow.com/a/22358422/548473
@@ -50,11 +56,12 @@ public class ExceptionInfoHandler {
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
-    @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
-    public ErrorInfo handleMethodArgumentNotValidException(HttpServletRequest req, Exception e) {
-        String message = ValidationUtil.getErrorResponse((BindingResult) e);
-        log.warn("{} at request  {}: {}", VALIDATION_ERROR, req.getRequestURL(), message);
-        return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, message);
+    @ExceptionHandler(BindException.class)
+    public ErrorInfo handleMethodArgumentNotValidException(HttpServletRequest req, BindException e) {
+        String[] message = e.getBindingResult().getFieldErrors().stream()
+                .map(messageSourceAccessor::getMessage)
+                .toArray(String[]::new);
+        return logAndGetErrorInfo(req, e, true, VALIDATION_ERROR, message);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -64,13 +71,14 @@ public class ExceptionInfoHandler {
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
-    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String... message) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.toString());
+        return new ErrorInfo(req.getRequestURL(), errorType, messageSourceAccessor.getMessage(errorType.getErrorCode()),
+                message.length != 0 ? message : new String[]{rootCause.getLocalizedMessage()});
     }
 }

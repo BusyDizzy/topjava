@@ -1,16 +1,12 @@
 package ru.javawebinar.topjava.web.user;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.UserTo;
-import ru.javawebinar.topjava.util.EmailValidator;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -21,12 +17,6 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 @RequestMapping(value = ProfileRestController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProfileRestController extends AbstractUserController {
     static final String REST_URL = "/rest/profile";
-
-    private final EmailValidator emailValidator;
-
-    public ProfileRestController(EmailValidator emailValidator) {
-        this.emailValidator = emailValidator;
-    }
 
     @GetMapping
     public User get() {
@@ -41,15 +31,7 @@ public class ProfileRestController extends AbstractUserController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo, BindingResult result) throws BindException {
-        emailValidator.validate(userTo, result);
-        if (result.hasErrors()) {
-            if (result.getFieldErrors().stream().anyMatch(fe -> fe.getDefaultMessage().equals("User with this email already exists"))) {
-                throw new DataIntegrityViolationException("User with this email already exists");
-            } else {
-                throw new BindException(result);
-            }
-        }
+    public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo) {
         User created = super.create(userTo);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL).build().toUri();
@@ -58,15 +40,7 @@ public class ProfileRestController extends AbstractUserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@Valid @RequestBody UserTo userTo, BindingResult result) throws BindException {
-        emailValidator.validate(userTo, result);
-        if (result.hasErrors()) {
-            if (result.getFieldErrors().stream().anyMatch(fe -> fe.getDefaultMessage().equals("User with this email already exists"))) {
-                throw new DataIntegrityViolationException("User with this email already exists");
-            } else {
-                throw new BindException(result);
-            }
-        }
+    public void update(@Valid @RequestBody UserTo userTo) {
         super.update(userTo, authUserId());
     }
 
